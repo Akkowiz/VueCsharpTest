@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "5Xmiglyc1FA=",
+  "success": true,
+  "projectFilePath": "/home/yuuka/coding/VueCsharpTest/backend/VueCsharpTest.csproj",
+  "expectedPackageFiles": [
+    "/home/yuuka/.nuget/packages/microsoft.aspnetcore.openapi/10.0.12/microsoft.aspnetcore.openapi.10.0.12.nupkg.sha512",
+    "/home/yuuka/.nuget/packages/microsoft.openapi/2.12.0/microsoft.openapi.2.12.0.nupkg.sha512",
+    "/home/yuuka/.nuget/packages/microsoft.aspnetcore.app.ref/10.0.12/microsoft.aspnetcore.app.ref.10.0.12.nupkg.sha512"
+  ],
+  "logs": []
+}

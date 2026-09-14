@@ -1,0 +1,6 @@
+@VueCsharpTest_HostAddress = http://localhost:5008
+
+GET {{VueCsharpTest_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

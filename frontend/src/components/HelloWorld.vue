@@ -1,71 +1,78 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-interface WeatherForecast {
-  date: string
-  temperatureC: number
-  temperatureF: number
-  summary: string | null
+interface TheaterShow {
+  id: number
+  playTitle: string
+  hall: string
+  showtime: string
+  ticketPrice: number
 }
 
-const forecasts = ref<WeatherForecast[]>([])
+const shows = ref<TheaterShow[]>([])
 const loading = ref<boolean>(true)
 const error = ref<string | null>(null)
 
-async function fetchWeather() {
-  loading.value = true
-  error.value = null
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('de-AT', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(price)
+}
 
+const formatDateTime = (dateString: string) => {
+  return new Intl.DateTimeFormat('de-AT', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(new Date(dateString))
+}
+
+const fetchShows = async () => {
   try {
-    const response = await fetch('http://localhost:5008/weatherforecast')
+    const response = await fetch('http://127.0.0.1:5008/api/shows')
     if (!response.ok) {
-      throw new Error(`HTTP error, status: ${response.status}`)
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
-    forecasts.value = await response.json()
-  } catch (err: any) {
-    error.value = 'Failed to load weather: ' + err.message
+    shows.value = await response.json()
+  } catch (err) {
+    error.value = 'Failed to load theater shows from API.'
+    console.error(err)
   } finally {
     loading.value = false
   }
 }
 
 onMounted(() => {
-  fetchWeather()
+  fetchShows()
 })
-
 </script>
 
 <template>
-  <section id="center">
-<div class="weather-card">
-    <h2>Weather Forecast</h2>
+  <main class="theater-container">
+    <h1>Theaterstücke</h1>
 
-    <p v-if="loading">Loading forecast</p>
-    <p v-else-if="error" class="error">{{ error }}</p>
+    <div v-if="loading" class="status">Loading showtimes...</div>
+    <div v-else-if="error" class="status-error">{{ error }}</div>
 
-    <div v-else>
-      <table border="1">
+    <div v-else class="table-container">
+      <table>
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Temp (°C)</th>
-            <th>Temp (°F)</th>
-            <th>Summary</th>
+            <th>Titel</th>
+            <th>Halle</th>
+            <th>Datum/Uhrzeit</th>
+            <th>Ticketpreis</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in forecasts" :key="item.date">
-            <td>{{ item.date }}</td>
-            <td>{{ item.temperatureC }}°C</td>
-            <td>{{ item.temperatureF }}°F</td>
-            <td>{{ item.summary }}</td>
+          <tr v-for="show in shows" :key="show.id">
+            <td>{{ show.playTitle }}</td>
+            <td>{{ show.hall }}</td>
+            <td>{{ formatDateTime(show.showtime) }}</td>
+            <td>{{ formatPrice(show.ticketPrice) }}</td>
           </tr>
         </tbody>
       </table>
-
-      <button @click="fetchWeather">Reload Data</button>
     </div>
-  </div>
-  </section>
-  <section id="spacer"></section>
+  </main>
 </template>

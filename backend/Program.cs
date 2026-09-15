@@ -1,50 +1,51 @@
-var builder = WebApplication.CreateBuilder(args);
+    using Microsoft.EntityFrameworkCore;
+    using VueCsharpTest;
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowVueApp", policy =>
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Services.AddCors(options =>
     {
-        policy.WithOrigins("http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        options.AddPolicy("AllowVueApp", policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
     });
-});
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
 
-var app = builder.Build();
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+    builder.Services.AddControllers();
+    builder.Services.AddOpenApi();
 
-app.UseCors("AllowVueApp");
-app.UseAuthorization();
-app.MapControllers();
+    var app = builder.Build();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+    }
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    app.UseCors("AllowVueApp");
+    app.UseAuthorization();
+    app.MapControllers();
+    app.MapTheaterEndpoints();
 
-app.Run();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+        if (!db.Shows.Any())
+        {
+            db.Shows.AddRange(
+                new TheaterEndpoints.TheaterShow { PlayTitle = "The Count of Monte Cristo", Hall = "Halle 1", Showtime = DateTime.UtcNow.AddDays(1).AddHours(19), TicketPrice = 27.50m },
+                new TheaterEndpoints.TheaterShow { PlayTitle = "Tenacious D", Hall = "Halle 2", Showtime = DateTime.UtcNow.AddDays(1).AddHours(22), TicketPrice = 25.50m },
+                new TheaterEndpoints.TheaterShow { PlayTitle = "The Phantom of the Opera", Hall = "Haupthalle", Showtime = DateTime.UtcNow.AddDays(2).AddHours(20), TicketPrice = 39.99m }
+            );
+            db.SaveChanges();
+        }
+    }
+
+    app.Run();

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VueCsharpTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a7aaaf6589e4a74b6c9167cce214fea42fd1a1d6")]
 [assembly: System.Reflection.AssemblyProductAttribute("VueCsharpTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VueCsharpTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
